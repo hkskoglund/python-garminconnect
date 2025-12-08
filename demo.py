@@ -20,7 +20,9 @@ export GARMINTOKENS=<path to token storage>
 import datetime
 import json
 import logging
+import argparse
 import os
+import re
 import sys
 from contextlib import suppress
 from datetime import timedelta
@@ -80,6 +82,7 @@ class Config:
         self.tokenstore_base64 = (
             os.getenv("GARMINTOKENS_BASE64") or "~/.garminconnect_base64"
         )
+        self.is_cli_mode = False  # Will be set in main()
 
         # Date settings
         self.today = datetime.date.today()
@@ -1162,15 +1165,18 @@ def call_and_display(
 
 def _display_single(api_call: str, output: Any):
     """Internal function to display single API response."""
-    print(f"\n📡 API Call: {api_call}")
-    print("-" * 50)
+    out_stream = sys.stderr if config.is_cli_mode else sys.stdout
+    print(f"\n📡 API Call: {api_call}", file=out_stream)
+    if not config.is_cli_mode:
+        print("-" * 50)
 
-    if output is None:
+    response_filename = "response.json"
+    response_file = config.export_dir / response_filename
+
+    if output is None and not config.is_cli_mode:
         print("No data returned")
-        # Save empty JSON to response.json in the export directory
-        response_file = config.export_dir / "response.json"
-        with open(response_file, "w", encoding="utf-8") as f:
-            f.write(f"{'-' * 20} {api_call} {'-' * 20}\n{{}}\n{'-' * 77}\n")
+        response_file.write_text("{}\n", encoding="utf-8")
+        print(f"📄 Response saved to: {response_file}")
         return
 
     try:
@@ -1180,29 +1186,48 @@ def _display_single(api_call: str, output: Any):
         else:
             formatted_output = str(output)
 
-        # Save to response.json in the export directory
-        response_content = (
-            f"{'-' * 20} {api_call} {'-' * 20}\n{formatted_output}\n{'-' * 77}\n"
-        )
+        # Save only the JSON to the response file
+        response_file.write_text(f"{formatted_output}\n", encoding="utf-8")
 
-        response_file = config.export_dir / "response.json"
-        with open(response_file, "w", encoding="utf-8") as f:
-            f.write(response_content)
+        if config.is_cli_mode:
+            # In CLI mode, print the JSON to stdout
+            print(formatted_output)
+        else:
+            # In interactive mode, print to console and show file path
+            print(formatted_output)
+        print(f"📄 Response saved to: {response_file}", file=out_stream)
 
-        print(formatted_output)
-        print("-" * 77)
+        if not config.is_cli_mode:
+            print("-" * 77)
 
     except Exception as e:
-        print(f"Error formatting output: {e}")
-        print(output)
+        print(f"Error formatting output: {e}", file=sys.stderr)
+        print(output, file=sys.stderr)
 
+def _sanitize_filename(name: str) -> str:
+    """Sanitize a string to be used as a valid filename."""
+    # Extract the method name, e.g., from "api.get_last_activity()" to "get_last_activity"
+    match = re.search(r"\.(\w+)", name)
+    if match:
+        name = match.group(1)
+
+    # Replace invalid characters with an underscore
+    name = re.sub(r'[\\/*?:"<>|()\'\s]', "_", name)
+    # Remove multiple underscores
+    name = re.sub(r"_+", "_", name).strip("_")
+    # Truncate to a reasonable length
+    return name[:50]
 
 def _display_group(group_name: str, api_responses: list[tuple[str, Any]]):
     """Internal function to display grouped API responses."""
     print(f"\n📡 API Group: {group_name}")
 
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    sanitized_group_name = _sanitize_filename(group_name)
+    response_filename = f"{timestamp}-{sanitized_group_name}.json"
+    response_file = config.export_dir / response_filename
+
     # Collect all responses for saving
-    all_responses = {}
     response_content_parts = []
 
     for api_call, output in api_responses:
@@ -1224,22 +1249,12 @@ def _display_group(group_name: str, api_responses: list[tuple[str, Any]]):
                 formatted_output = str(output)
                 print(output)
 
-        # Store for grouped response file
-        all_responses[api_call] = output
-        response_content_parts.append(
-            f"{'-' * 20} {api_call} {'-' * 20}\n{formatted_output}"
-        )
+        response_content_parts.append(formatted_output)
         print("-" * 50)
 
     # Save grouped responses to file
     try:
-        response_file = config.export_dir / "response.json"
-        grouped_content = f"""{'=' * 20} {group_name} {'=' * 20}
-{chr(10).join(response_content_parts)}
-{'=' * 77}
-"""
-        with open(response_file, "w", encoding="utf-8") as f:
-            f.write(grouped_content)
+        response_file.write_text("\n\n".join(response_content_parts) + "\n", encoding="utf-8")
 
         print(f"\n✅ Grouped responses saved to: {response_file}")
         print("=" * 77)
@@ -3316,7 +3331,8 @@ def execute_api_call(api: Garmin, key: str) -> None:
         return
 
     try:
-        # Map of keys to API methods - this can be extended as needed
+        out_stream = sys.stderr if config.is_cli_mode else sys.stdout
+
         api_methods = {
             # User & Profile
             "get_full_name": lambda: call_and_display(
@@ -3770,7 +3786,7 @@ def execute_api_call(api: Garmin, key: str) -> None:
         }
 
         if key in api_methods:
-            print(f"\n🔄 Executing: {key}")
+            print(f"\n🔄 Executing: {key}", file=out_stream)
             api_methods[key]()
         else:
             print(f"❌ API method '{key}' not implemented yet. You can add it later!")
@@ -3803,13 +3819,15 @@ def disconnect_api(api: Garmin):
 
 def init_api(email: str | None = None, password: str | None = None) -> Garmin | None:
     """Initialize Garmin API with smart error handling and recovery."""
+    out_stream = sys.stderr if config.is_cli_mode else sys.stdout
+
     # First try to login with stored tokens
     try:
-        print(f"Attempting to login using stored tokens from: {config.tokenstore}")
+        print(f"Attempting to login using stored tokens from: {config.tokenstore}", file=out_stream)
 
         garmin = Garmin()
         garmin.login(config.tokenstore)
-        print("Successfully logged in using stored tokens!")
+        print("Successfully logged in using stored tokens!", file=out_stream)
         return garmin
 
     except (
@@ -3818,7 +3836,7 @@ def init_api(email: str | None = None, password: str | None = None) -> Garmin | 
         GarminConnectAuthenticationError,
         GarminConnectConnectionError,
     ):
-        print("No valid tokens found. Requesting fresh login credentials.")
+        print("No valid tokens found. Requesting fresh login credentials.", file=out_stream)
 
     # Loop for credential entry with retry on auth failure
     while True:
@@ -3828,34 +3846,34 @@ def init_api(email: str | None = None, password: str | None = None) -> Garmin | 
                 email = input("Email address: ").strip()
                 password = getpass("Password: ")
 
-            print("Logging in with credentials...")
+            print("Logging in with credentials...", file=out_stream)
             garmin = Garmin(
                 email=email, password=password, is_cn=False, return_on_mfa=True
             )
             result1, result2 = garmin.login()
 
             if result1 == "needs_mfa":
-                print("Multi-factor authentication required")
+                print("Multi-factor authentication required", file=out_stream)
 
                 mfa_code = get_mfa()
-                print("🔄 Submitting MFA code...")
+                print("🔄 Submitting MFA code...", file=out_stream)
 
                 try:
                     garmin.resume_login(result2, mfa_code)
-                    print("✅ MFA authentication successful!")
+                    print("✅ MFA authentication successful!", file=out_stream)
 
                 except GarthHTTPError as garth_error:
                     # Handle specific HTTP errors from MFA
                     error_str = str(garth_error)
-                    print(f"🔍 Debug: MFA error details: {error_str}")
+                    print(f"🔍 Debug: MFA error details: {error_str}", file=sys.stderr)
 
                     if "429" in error_str and "Too Many Requests" in error_str:
-                        print("❌ Too many MFA attempts")
-                        print("💡 Please wait 30 minutes before trying again")
+                        print("❌ Too many MFA attempts", file=sys.stderr)
+                        print("💡 Please wait 30 minutes before trying again", file=sys.stderr)
                         sys.exit(1)
                     elif "401" in error_str or "403" in error_str:
-                        print("❌ Invalid MFA code")
-                        print("💡 Please verify your MFA code and try again")
+                        print("❌ Invalid MFA code", file=sys.stderr)
+                        print("💡 Please verify your MFA code and try again", file=sys.stderr)
                         continue
                     else:
                         # Other HTTP errors - don't retry
@@ -3863,19 +3881,19 @@ def init_api(email: str | None = None, password: str | None = None) -> Garmin | 
                         sys.exit(1)
 
                 except GarthException as garth_error:
-                    print(f"❌ MFA authentication failed: {garth_error}")
-                    print("💡 Please verify your MFA code and try again")
+                    print(f"❌ MFA authentication failed: {garth_error}", file=sys.stderr)
+                    print("💡 Please verify your MFA code and try again", file=sys.stderr)
                     continue
 
             # Save tokens for future use
             garmin.garth.dump(config.tokenstore)
-            print(f"Login successful! Tokens saved to: {config.tokenstore}")
+            print(f"Login successful! Tokens saved to: {config.tokenstore}", file=out_stream)
 
             return garmin
 
         except GarminConnectAuthenticationError:
-            print("❌ Authentication failed:")
-            print("💡 Please check your username and password and try again")
+            print("❌ Authentication failed:", file=sys.stderr)
+            print("💡 Please check your username and password and try again", file=sys.stderr)
             # Clear the provided credentials to force re-entry
             email = None
             password = None
@@ -3888,8 +3906,8 @@ def init_api(email: str | None = None, password: str | None = None) -> Garmin | 
             GarminConnectConnectionError,
             requests.exceptions.HTTPError,
         ) as err:
-            print(f"❌ Connection error: {err}")
-            print("💡 Please check your internet connection and try again")
+            print(f"❌ Connection error: {err}", file=sys.stderr)
+            print("💡 Please check your internet connection and try again", file=sys.stderr)
             return None
 
         except KeyboardInterrupt:
@@ -3898,13 +3916,33 @@ def init_api(email: str | None = None, password: str | None = None) -> Garmin | 
 
 
 def main():
-    """Main program loop with funny health status in menu prompt."""
-    # Display export directory information on startup
-    print(f"📁 Exported data will be saved to the directory: '{config.export_dir}'")
-    print("📄 All API responses are written to: 'response.json'")
+    """Main program loop. Handles CLI arguments or starts interactive menu."""
+    parser = argparse.ArgumentParser(description="Garmin Connect API Demo CLI.")
+    parser.add_argument("command", nargs="?", help="The API command to execute (e.g., get_full_name).")
+    parser.add_argument("args", nargs="*", help="Arguments for the command.")
 
+    # Automatically detect CLI mode if arguments are provided
+    config.is_cli_mode = len(sys.argv) > 1
+
+    # Initialize API after setting CLI mode
     api_instance = init_api(config.email, config.password)
     current_category = None
+
+    # Non-interactive CLI mode
+    if config.is_cli_mode:
+        cli_args = parser.parse_args()
+        if not api_instance:
+            print("❌ API initialization failed. Exiting.", file=sys.stderr)
+            sys.exit(1)
+        if cli_args.command:
+            execute_cli_command(api_instance, cli_args.command, cli_args.args)
+            sys.exit(0)
+        else:
+            print("CLI mode is active, but no command was provided. Use -h for help.", file=sys.stderr)
+            sys.exit(1)
+
+    # Interactive menu mode
+    print(f"📁 Exported data will be saved to the directory: '{config.export_dir}'")
 
     while True:
         try:
@@ -4005,6 +4043,25 @@ def main():
         except Exception as e:
             print(f"Unexpected error: {e}")
 
+
+def execute_cli_command(api: Garmin, command: str, args: list):
+    """Execute a command from the CLI and exit."""
+    print(f"Executing command: {command} with args: {args}", file=sys.stderr)
+
+    # Flatten the menu structure to find the command
+    all_options = {}
+    for cat in menu_categories.values():
+        all_options.update({opt['key']: opt for opt in cat['options'].values()})
+
+    if command in all_options:
+        # For simplicity, this CLI example re-uses the menu's execution logic.
+        # It doesn't parse arguments dynamically for each function yet.
+        # This serves as a great starting point for a more advanced CLI.
+        execute_api_call(api, command)
+    else:
+        print(f"❌ Unknown command: '{command}'")
+        print("Run without arguments to see the interactive menu for available functions.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

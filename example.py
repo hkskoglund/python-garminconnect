@@ -280,47 +280,41 @@ def display_daily_stats(api: Garmin):
     # Get user summary (steps, calories, etc.)
     success, summary, error_msg = safe_api_call(api.get_user_summary, today)
     if success and summary:
-        steps = summary.get("totalSteps", 0)
-        distance = summary.get("totalDistanceMeters", 0) / 1000  # Convert to km
-        calories = summary.get("totalKilocalories", 0)
-        floors = summary.get("floorsClimbed", 0)
+        steps = summary.get("totalSteps") or 0
+        distance = (summary.get("totalDistanceMeters") or 0) / 1000  # km
+        calories = summary.get("totalKilocalories") or 0
+        floors = summary.get("floorsClimbed") or 0
 
         print(f"👣 Steps: {steps:,}")
         print(f"📏 Distance: {distance:.2f} km")
-        print(f"🔥 Calories: {calories}")
+        print(f"🔥 Calories: {calories:,}")
         print(f"🏢 Floors: {floors}")
 
         # Fun motivation based on steps
-        if steps < 5000:
+        if steps == 0 and distance == 0 and calories == 0:
+            print("⚠️ Today seems quiet. Time to move!")
+        elif steps < 5000:
             print("🐌 Time to get those legs moving!")
         elif steps > 15000:
             print("🏃‍♂️ You're crushing it today!")
         else:
             print("👍 Nice progress! Keep it up!")
     else:
-        if not success:
-            print(f"⚠️ Could not fetch daily stats: {error_msg}")
-        else:
-            print("⚠️ No activity summary available for today")
+        print(f"⚠️ Could not fetch daily stats: {error_msg}" if not success else
+              "⚠️ No activity summary available for today")
 
     # Get hydration data
     success, hydration, error_msg = safe_api_call(api.get_hydration_data, today)
     if success and hydration and hydration.get("valueInML"):
         hydration_ml = int(hydration.get("valueInML", 0))
-        hydration_goal = hydration.get("goalInML", 0)
+        hydration_goal = hydration.get("goalInML") or 0
         hydration_cups = round(hydration_ml / 240, 1)  # 240ml = 1 cup
 
         print(f"💧 Hydration: {hydration_ml}ml ({hydration_cups} cups)")
-
-        if hydration_goal > 0:
-            hydration_percent = round((hydration_ml / hydration_goal) * 100)
-            print(f"🎯 Goal Progress: {hydration_percent}% of {hydration_goal}ml")
+        hydration_percent = round((hydration_ml / hydration_goal) * 100) if hydration_goal else 0
+        print(f"🎯 Goal Progress: {hydration_percent}% of {hydration_goal}ml")
     else:
-        if not success:
-            print(f"💧 Hydration: ⚠️ {error_msg}")
-        else:
-            print("💧 Hydration: No data available")
-
+        print(f"💧 Hydration: ⚠️ {error_msg}" if not success else "💧 Hydration: No data available")
 
 def main():
     """Main example demonstrating basic Garmin Connect API usage."""
