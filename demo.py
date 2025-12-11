@@ -3927,6 +3927,13 @@ def print_command_help(command: str):
             ],
             "example": "./demo.py get_activities 7",
         },
+        "get_activity_details": {
+            "usage": "get_activity_details <activity_id>",
+            "args": [
+                "activity_id: The numeric ID of the activity to retrieve.",
+            ],
+            "example": "./demo.py get_activity_details 123456789",
+        },
         # Add help for other commands that accept arguments here
     }
 
@@ -4135,6 +4142,21 @@ def execute_cli_command(api: Garmin, command: str, args: list):
             except (ValueError, IndexError):
                 print("Usage: get_activities [limit] [start]", file=sys.stderr)
                 print("Example: get_activities 7", file=sys.stderr)
+                sys.exit(1)
+        elif command == "get_activity_details":
+            try:
+                if not args:
+                    raise IndexError("Activity ID is required.")
+                activity_id = int(args[0])
+                call_and_display(
+                    api.get_activity_details,
+                    activity_id,
+                    method_name="get_activity_details",
+                    api_call_desc=f"api.get_activity_details(activity_id={activity_id})",
+                )
+            except (ValueError, IndexError):
+                print("Usage: get_activity_details <activity_id>", file=sys.stderr)
+                print("Example: get_activity_details 123456789", file=sys.stderr)
                 sys.exit(1)
         else:
             # For other commands, use the default interactive-mode execution.
