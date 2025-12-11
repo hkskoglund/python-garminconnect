@@ -3915,11 +3915,61 @@ def init_api(email: str | None = None, password: str | None = None) -> Garmin | 
             return None
 
 
+def print_command_help(command: str):
+    """Prints detailed help for a specific command."""
+    # Command-specific help text and usage examples
+    help_details = {
+        "get_activities": {
+            "usage": "get_activities [limit] [start]",
+            "args": [
+                "limit: The number of activities to retrieve (default: 100).",
+                "start: The starting index for the activities (default: 0).",
+            ],
+            "example": "./demo.py get_activities 7",
+        },
+        # Add help for other commands that accept arguments here
+    }
+
+    if command in help_details:
+        details = help_details[command]
+        print(f"Usage: {details['usage']}")
+        print("\nArguments:")
+        for arg_desc in details["args"]:
+            print(f"  {arg_desc}")
+        print(f"\nExample:\n  {details['example']}")
+    else:
+        print(f"The command '{command}' does not accept any specific arguments from the command line.")
+
+
+def list_all_commands():
+    """Prints a list of all available API commands for the CLI."""
+    print("Available API Commands:")
+    print("-----------------------")
+    all_options = {}
+    for cat_data in menu_categories.values():
+        for opt_data in cat_data["options"].values():
+            all_options[opt_data["key"]] = opt_data["desc"]
+
+    # Sort commands alphabetically for easier discovery
+    sorted_commands = sorted(all_options.items())
+
+    # Find the longest command key for alignment
+    if sorted_commands:
+        max_len = max(len(key) for key, _ in sorted_commands)
+        for key, desc in sorted_commands:
+            print(f"  {key:<{max_len}}   {desc}")
+    else:
+        print("  No commands found.")
+
+
 def main():
     """Main program loop. Handles CLI arguments or starts interactive menu."""
     parser = argparse.ArgumentParser(description="Garmin Connect API Demo CLI.")
+    parser.add_argument("--list-commands", action="store_true", help="List all available API commands and exit. Use 'help <command>' for command-specific help.")
     parser.add_argument("command", nargs="?", help="The API command to execute (e.g., get_full_name).")
     parser.add_argument("args", nargs="*", help="Arguments for the command.")
+
+    cli_args = parser.parse_args()
 
     # Automatically detect CLI mode if arguments are provided
     config.is_cli_mode = len(sys.argv) > 1
@@ -3929,8 +3979,18 @@ def main():
     current_category = None
 
     # Non-interactive CLI mode
-    if config.is_cli_mode:
-        cli_args = parser.parse_args()
+    if cli_args.list_commands:
+        list_all_commands()
+        sys.exit(0)
+    elif cli_args.command == "help":
+        if len(cli_args.args) == 1:
+            print_command_help(cli_args.args[0])
+        else:
+            print("Usage: help <command>", file=sys.stderr)
+            print("Example: help get_activities", file=sys.stderr)
+        sys.exit(0)
+    elif cli_args.command:
+        config.is_cli_mode = True  # Ensure CLI mode is set if a command is passed
         if not api_instance:
             print("❌ API initialization failed. Exiting.", file=sys.stderr)
             sys.exit(1)
@@ -3938,7 +3998,7 @@ def main():
             execute_cli_command(api_instance, cli_args.command, cli_args.args)
             sys.exit(0)
         else:
-            print("CLI mode is active, but no command was provided. Use -h for help.", file=sys.stderr)
+            print("No command provided. Use --list-commands to see available commands.", file=sys.stderr)
             sys.exit(1)
 
     # Interactive menu mode
@@ -4046,7 +4106,11 @@ def main():
 
 def execute_cli_command(api: Garmin, command: str, args: list):
     """Execute a command from the CLI and exit."""
-    print(f"Executing command: {command} with args: {args}", file=sys.stderr)
+    # Check for --help argument for any command
+    if "--help" in args or "-h" in args:
+        print(f"Help for command: {command}\n")
+        print_command_help(command)
+        sys.exit(0)
 
     # Flatten the menu structure to find the command
     all_options = {}
@@ -4054,10 +4118,29 @@ def execute_cli_command(api: Garmin, command: str, args: list):
         all_options.update({opt['key']: opt for opt in cat['options'].values()})
 
     if command in all_options:
-        # For simplicity, this CLI example re-uses the menu's execution logic.
-        # It doesn't parse arguments dynamically for each function yet.
-        # This serves as a great starting point for a more advanced CLI.
-        execute_api_call(api, command)
+        print(f"Executing command: {command} with args: {args}", file=sys.stderr)
+
+        # Special handling for commands that take arguments from the CLI
+        if command == "get_activities":
+            try:
+                limit = int(args[0]) if args else config.default_limit
+                start = int(args[1]) if len(args) > 1 else config.start
+                call_and_display(
+                    api.get_activities,
+                    start,
+                    limit,
+                    method_name="get_activities",
+                    api_call_desc=f"api.get_activities(start={start}, limit={limit})",
+                )
+            except (ValueError, IndexError):
+                print("Usage: get_activities [limit] [start]", file=sys.stderr)
+                print("Example: get_activities 7", file=sys.stderr)
+                sys.exit(1)
+        else:
+            # For other commands, use the default interactive-mode execution.
+            # This can be expanded to handle arguments for more commands.
+            execute_api_call(api, command)
+
     else:
         print(f"❌ Unknown command: '{command}'")
         print("Run without arguments to see the interactive menu for available functions.")
