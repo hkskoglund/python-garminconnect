@@ -3934,6 +3934,16 @@ def print_command_help(command: str):
             ],
             "example": "./demo.py get_activity_details 123456789",
         },
+        "get_race_predictions": {
+            "usage": "get_race_predictions [startdate enddate type]",
+            "args": [
+                "If no arguments are provided, fetches the latest race predictions.",
+                "startdate: The start date for the range (YYYY-MM-DD).",
+                "enddate: The end date for the range (YYYY-MM-DD).",
+                "type: The aggregation type, either 'daily' or 'monthly'.",
+            ],
+            "example": "./demo.py get_race_predictions 2023-01-01 2023-01-31 daily",
+        },
         # Add help for other commands that accept arguments here
     }
 
@@ -4145,18 +4155,53 @@ def execute_cli_command(api: Garmin, command: str, args: list):
                 sys.exit(1)
         elif command == "get_activity_details":
             try:
-                if not args:
-                    raise IndexError("Activity ID is required.")
-                activity_id = int(args[0])
+                if args:
+                    activity_id = int(args[0])
+                    print(f"Fetching details for activity ID: {activity_id}", file=sys.stderr)
+                else:
+                    print("No activity ID provided, fetching last activity...", file=sys.stderr)
+                    last_activity = api.get_last_activity()
+                    if not last_activity or "activityId" not in last_activity:
+                        print("Could not find last activity.", file=sys.stderr)
+                        sys.exit(1)
+                    activity_id = last_activity["activityId"]
+
                 call_and_display(
                     api.get_activity_details,
                     activity_id,
                     method_name="get_activity_details",
                     api_call_desc=f"api.get_activity_details(activity_id={activity_id})",
                 )
+            except (ValueError, IndexError) as e:
+                print(f"Error: {e}", file=sys.stderr)
+                print("Usage: get_activity_details [activity_id]", file=sys.stderr)
+                print("Example: ./demo.py get_activity_details 123456789", file=sys.stderr)
+                sys.exit(1)
+        elif command == "get_race_predictions":
+            try:
+                if not args:
+                    # No args, get latest
+                    call_and_display(
+                        api.get_race_predictions,
+                        method_name="get_race_predictions",
+                        api_call_desc="api.get_race_predictions()",
+                    )
+                elif len(args) == 3:
+                    # With args: startdate, enddate, type
+                    startdate, enddate, _type = args
+                    call_and_display(
+                        api.get_race_predictions,
+                        startdate=startdate,
+                        enddate=enddate,
+                        _type=_type,
+                        method_name="get_race_predictions",
+                        api_call_desc=f"api.get_race_predictions(startdate='{startdate}', enddate='{enddate}', _type='{_type}')",
+                    )
+                else:
+                    print("Usage: get_race_predictions [startdate enddate type]", file=sys.stderr)
+                    sys.exit(1)
             except (ValueError, IndexError):
-                print("Usage: get_activity_details <activity_id>", file=sys.stderr)
-                print("Example: get_activity_details 123456789", file=sys.stderr)
+                print("Usage: get_race_predictions [startdate enddate type]", file=sys.stderr)
                 sys.exit(1)
         else:
             # For other commands, use the default interactive-mode execution.
