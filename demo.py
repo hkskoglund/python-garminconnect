@@ -3934,6 +3934,13 @@ def print_command_help(command: str):
             ],
             "example": "./demo.py get_activity_details 123456789",
         },
+        "get_activity_hr_in_timezones": {
+            "usage": "get_activity_hr_in_timezones [activity_id]",
+            "args": [
+                "activity_id: The numeric ID of the activity. If not provided, the last activity will be used.",
+            ],
+            "example": "./demo.py get_activity_hr_in_timezones 123456789",
+        },
         "get_race_predictions": {
             "usage": "get_race_predictions [startdate enddate type]",
             "args": [
@@ -4204,6 +4211,29 @@ def execute_cli_command(api: Garmin, command: str, args: list):
                 print(f"Error: {e}", file=sys.stderr)
                 print("Usage: get_activity_details [activity_id]", file=sys.stderr)
                 print("Example: ./demo.py get_activity_details 123456789", file=sys.stderr)
+                sys.exit(1)
+        elif command == "get_activity_hr_in_timezones":
+            try:
+                if args:
+                    activity_id = int(args[0])
+                    print(f"Fetching heart rate in timezones for activity ID: {activity_id}", file=sys.stderr)
+                else:
+                    print("No activity ID provided, fetching last activity...", file=sys.stderr)
+                    last_activity = api.get_last_activity()
+                    if not last_activity or "activityId" not in last_activity:
+                        print("Could not find last activity.", file=sys.stderr)
+                        sys.exit(1)
+                    activity_id = last_activity["activityId"]
+
+                call_and_display(
+                    api.get_activity_hr_in_timezones,
+                    activity_id,
+                    method_name="get_activity_hr_in_timezones",
+                    api_call_desc=f"api.get_activity_hr_in_timezones(activity_id={activity_id})",
+                )
+            except (ValueError, IndexError) as e:
+                print(f"Error: {e}", file=sys.stderr)
+                print("Usage: get_activity_hr_in_timezones [activity_id]", file=sys.stderr)
                 sys.exit(1)
         elif command == "get_race_predictions":
             try:
