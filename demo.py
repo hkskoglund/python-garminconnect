@@ -3944,6 +3944,13 @@ def print_command_help(command: str):
             ],
             "example": "./demo.py get_race_predictions 2023-01-01 2023-01-31 daily",
         },
+        "get_training_status": {
+            "usage": "get_training_status [date]",
+            "args": [
+                "date: The date for which to retrieve the training status (YYYY-MM-DD). Defaults to today.",
+            ],
+            "example": "./demo.py get_training_status 2023-01-20",
+        },
         # Add help for other commands that accept arguments here
     }
 
@@ -4203,6 +4210,20 @@ def execute_cli_command(api: Garmin, command: str, args: list):
             except (ValueError, IndexError):
                 print("Usage: get_race_predictions [startdate enddate type]", file=sys.stderr)
                 sys.exit(1)
+        elif command == "get_training_status":
+            try:
+                cdate = args[0] if args else config.today.isoformat()
+                call_and_display(
+                    api.get_training_status,
+                    cdate,
+                    method_name="get_training_status",
+                    api_call_desc=f"api.get_training_status(cdate='{cdate}')",
+                )
+            except (ValueError, IndexError):
+                print("Usage: get_training_status [date]", file=sys.stderr)
+                print("Example: ./demo.py get_training_status 2023-01-20", file=sys.stderr)
+                sys.exit(1)
+
         else:
             # For other commands, use the default interactive-mode execution.
             # This can be expanded to handle arguments for more commands.
