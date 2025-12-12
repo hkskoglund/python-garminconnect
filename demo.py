@@ -97,6 +97,11 @@ class Config:
         self.week_start = self.today - timedelta(days=7)
         self.month_start = self.today - timedelta(days=30)
 
+        # Pre-compute date strings for optimization
+        self.today_str = self.today.isoformat()
+        self.week_start_str = self.week_start.isoformat()
+        self.month_start_str = self.month_start.isoformat()
+
         # API call settings
         self.default_limit = 100
         self.start = 0
@@ -133,39 +138,39 @@ menu_categories = {
         "name": "📊 Daily Health & Activity",
         "options": {
             "1": {
-                "desc": f"Get activity data for '{config.today.isoformat()}'",
+                "desc": f"Get activity data for '{config.today_str}'",
                 "key": "get_stats",
             },
             "2": {
-                "desc": f"Get user summary for '{config.today.isoformat()}'",
+                "desc": f"Get user summary for '{config.today_str}'",
                 "key": "get_user_summary",
             },
             "3": {
-                "desc": f"Get stats and body composition for '{config.today.isoformat()}'",
+                "desc": f"Get stats and body composition for '{config.today_str}'",
                 "key": "get_stats_and_body",
             },
             "4": {
-                "desc": f"Get steps data for '{config.today.isoformat()}'",
+                "desc": f"Get steps data for '{config.today_str}'",
                 "key": "get_steps_data",
             },
             "5": {
-                "desc": f"Get heart rate data for '{config.today.isoformat()}'",
+                "desc": f"Get heart rate data for '{config.today_str}'",
                 "key": "get_heart_rates",
             },
             "6": {
-                "desc": f"Get resting heart rate for '{config.today.isoformat()}'",
+                "desc": f"Get resting heart rate for '{config.today_str}'",
                 "key": "get_resting_heart_rate",
             },
             "7": {
-                "desc": f"Get sleep data for '{config.today.isoformat()}'",
+                "desc": f"Get sleep data for '{config.today_str}'",
                 "key": "get_sleep_data",
             },
             "8": {
-                "desc": f"Get stress data for '{config.today.isoformat()}'",
+                "desc": f"Get stress data for '{config.today_str}'",
                 "key": "get_all_day_stress",
             },
             "9": {
-                "desc": f"Get lifestyle logging data for '{config.today.isoformat()}'",
+                "desc": f"Get lifestyle logging data for '{config.today_str}'",
                 "key": "get_lifestyle_logging_data",
             },
         },
@@ -174,40 +179,40 @@ menu_categories = {
         "name": "🔬 Advanced Health Metrics",
         "options": {
             "1": {
-                "desc": f"Get training readiness for '{config.today.isoformat()}'",
+                "desc": f"Get training readiness for '{config.today_str}'",
                 "key": "get_training_readiness",
             },
             "2": {
-                "desc": f"Get training status for '{config.today.isoformat()}'",
+                "desc": f"Get training status for '{config.today_str}'",
                 "key": "get_training_status",
             },
             "3": {
-                "desc": f"Get respiration data for '{config.today.isoformat()}'",
+                "desc": f"Get respiration data for '{config.today_str}'",
                 "key": "get_respiration_data",
             },
             "4": {
-                "desc": f"Get SpO2 data for '{config.today.isoformat()}'",
+                "desc": f"Get SpO2 data for '{config.today_str}'",
                 "key": "get_spo2_data",
             },
             "5": {
-                "desc": f"Get max metrics (VO2, fitness age) for '{config.today.isoformat()}'",
+                "desc": f"Get max metrics (VO2, fitness age) for '{config.today_str}'",
                 "key": "get_max_metrics",
             },
             "6": {
-                "desc": f"Get Heart Rate Variability (HRV) for '{config.today.isoformat()}'",
+                "desc": f"Get Heart Rate Variability (HRV) for '{config.today_str}'",
                 "key": "get_hrv_data",
             },
             "7": {
-                "desc": f"Get Fitness Age data for '{config.today.isoformat()}'",
+                "desc": f"Get Fitness Age data for '{config.today_str}'",
                 "key": "get_fitnessage_data",
             },
             "8": {
-                "desc": f"Get stress data for '{config.today.isoformat()}'",
+                "desc": f"Get stress data for '{config.today_str}'",
                 "key": "get_stress_data",
             },
             "9": {"desc": "Get lactate threshold data", "key": "get_lactate_threshold"},
             "0": {
-                "desc": f"Get intensity minutes for '{config.today.isoformat()}'",
+                "desc": f"Get intensity minutes for '{config.today_str}'",
                 "key": "get_intensity_minutes_data",
             },
         },
@@ -216,27 +221,27 @@ menu_categories = {
         "name": "📈 Historical Data & Trends",
         "options": {
             "1": {
-                "desc": f"Get daily steps from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get daily steps from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_daily_steps",
             },
             "2": {
-                "desc": f"Get body battery from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get body battery from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_body_battery",
             },
             "3": {
-                "desc": f"Get floors data for '{config.week_start.isoformat()}'",
+                "desc": f"Get floors data for '{config.week_start_str}'",
                 "key": "get_floors",
             },
             "4": {
-                "desc": f"Get blood pressure from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get blood pressure from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_blood_pressure",
             },
             "5": {
-                "desc": f"Get progress summary from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get progress summary from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_progress_summary_between_dates",
             },
             "6": {
-                "desc": f"Get body battery events for '{config.week_start.isoformat()}'",
+                "desc": f"Get body battery events for '{config.week_start_str}'",
                 "key": "get_body_battery_events",
             },
         },
@@ -250,11 +255,11 @@ menu_categories = {
             },
             "2": {"desc": "Get last activity", "key": "get_last_activity"},
             "3": {
-                "desc": f"Get activities for today '{config.today.isoformat()}'",
+                "desc": f"Get activities for today '{config.today_str}'",
                 "key": "get_activities_fordate",
             },
             "4": {
-                "desc": f"Download activities by date range '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Download activities by date range '{config.week_start_str}' to '{config.today_str}'",
                 "key": "download_activities",
             },
             "5": {
@@ -297,7 +302,7 @@ menu_categories = {
                 "key": "upload_workout",
             },
             "j": {
-                "desc": f"Get activities by date range '{config.today.isoformat()}'",
+                "desc": f"Get activities by date range '{config.today_str}'",
                 "key": "get_activities_by_date",
             },
             "k": {"desc": "Set activity name", "key": "set_activity_name"},
@@ -338,28 +343,28 @@ menu_categories = {
         "name": "⚖️  Body Composition & Weight",
         "options": {
             "1": {
-                "desc": f"Get body composition for '{config.today.isoformat()}'",
+                "desc": f"Get body composition for '{config.today_str}'",
                 "key": "get_body_composition",
             },
             "2": {
-                "desc": f"Get weigh-ins from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get weigh-ins from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_weigh_ins",
             },
             "3": {
-                "desc": f"Get daily weigh-ins for '{config.today.isoformat()}'",
+                "desc": f"Get daily weigh-ins for '{config.today_str}'",
                 "key": "get_daily_weigh_ins",
             },
             "4": {"desc": "Add a weigh-in (interactive)", "key": "add_weigh_in"},
             "5": {
-                "desc": f"Set body composition data for '{config.today.isoformat()}' (interactive)",
+                "desc": f"Set body composition data for '{config.today_str}' (interactive)",
                 "key": "set_body_composition",
             },
             "6": {
-                "desc": f"Add body composition for '{config.today.isoformat()}' (interactive)",
+                "desc": f"Add body composition for '{config.today_str}' (interactive)",
                 "key": "add_body_composition",
             },
             "7": {
-                "desc": f"Delete all weigh-ins for '{config.today.isoformat()}'",
+                "desc": f"Delete all weigh-ins for '{config.today_str}'",
                 "key": "delete_weigh_ins",
             },
             "8": {"desc": "Delete specific weigh-in", "key": "delete_weigh_in"},
@@ -389,11 +394,11 @@ menu_categories = {
             },
             "a": {"desc": "Get race predictions", "key": "get_race_predictions"},
             "b": {
-                "desc": f"Get hill score from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get hill score from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_hill_score",
             },
             "c": {
-                "desc": f"Get endurance score from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get endurance score from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_endurance_score",
             },
             "d": {"desc": "Get available badges", "key": "get_available_badges"},
@@ -407,7 +412,7 @@ menu_categories = {
             "2": {"desc": "Get device alarms", "key": "get_device_alarms"},
             "3": {"desc": "Get solar data from your devices", "key": "get_solar_data"},
             "4": {
-                "desc": f"Request data reload (epoch) for '{config.today.isoformat()}'",
+                "desc": f"Request data reload (epoch) for '{config.today_str}'",
                 "key": "request_reload",
             },
             "5": {"desc": "Get device settings", "key": "get_device_settings"},
@@ -440,7 +445,7 @@ menu_categories = {
         "name": "💧 Hydration & Wellness",
         "options": {
             "1": {
-                "desc": f"Get hydration data for '{config.today.isoformat()}'",
+                "desc": f"Get hydration data for '{config.today_str}'",
                 "key": "get_hydration_data",
             },
             "2": {"desc": "Add hydration data", "key": "add_hydration_data"},
@@ -450,19 +455,19 @@ menu_categories = {
             },
             "4": {"desc": "Get pregnancy summary data", "key": "get_pregnancy_summary"},
             "5": {
-                "desc": f"Get all day events for '{config.week_start.isoformat()}'",
+                "desc": f"Get all day events for '{config.week_start_str}'",
                 "key": "get_all_day_events",
             },
             "6": {
-                "desc": f"Get body battery events for '{config.week_start.isoformat()}'",
+                "desc": f"Get body battery events for '{config.week_start_str}'",
                 "key": "get_body_battery_events",
             },
             "7": {
-                "desc": f"Get menstrual data for '{config.today.isoformat()}'",
+                "desc": f"Get menstrual data for '{config.today_str}'",
                 "key": "get_menstrual_data_for_date",
             },
             "8": {
-                "desc": f"Get menstrual calendar from '{config.week_start.isoformat()}' to '{config.today.isoformat()}'",
+                "desc": f"Get menstrual calendar from '{config.week_start_str}' to '{config.today_str}'",
                 "key": "get_menstrual_calendar_data",
             },
             "9": {
@@ -573,7 +578,7 @@ class DataExporter:
             )
 
             # Today's summary
-            today_str = config.today.isoformat()
+            today_str = config.today_str
             report_data["today_summary"] = api_instance.get_user_summary(today_str)
 
             # Recent activities
@@ -603,7 +608,7 @@ class DataExporter:
                 (
                     "body_battery",
                     lambda: api_instance.get_body_battery(
-                        config.week_start.isoformat(), today_str
+                        config.week_start_str, today_str
                     ),
                 ),
             ]
@@ -766,7 +771,7 @@ class DataExporter:
 
         <div class="meta-info">
             <p><strong>Generated:</strong> {generated_at}</p>
-            <p><strong>Date:</strong> {config.today.isoformat()}</p>
+            <p><strong>Date:</strong> {config.today_str}</p>
         </div>
 """
 
@@ -1361,9 +1366,9 @@ def get_solar_data(api: Garmin) -> None:
                     safe_call_for_group(
                         api.get_device_solar_data,
                         device_id,
-                        config.today.isoformat(),
+                        config.today_str,
                         method_name="get_device_solar_data",
-                        api_call_desc=f"api.get_device_solar_data({device_id}, '{config.today.isoformat()}')",
+                        api_call_desc=f"api.get_device_solar_data({device_id}, '{config.today_str}')",
                     )
                 )
     else:
@@ -1495,12 +1500,12 @@ def download_activities_by_date(api: Garmin) -> None:
     """Download activities by date range in multiple formats."""
     try:
         print(
-            f"📥 Downloading activities by date range ({config.week_start.isoformat()} to {config.today.isoformat()})..."
+            f"📥 Downloading activities by date range ({config.week_start_str} to {config.today_str})..."
         )
 
         # Get activities for the date range (last 7 days as default)
         activities = api.get_activities_by_date(
-            config.week_start.isoformat(), config.today.isoformat()
+            config.week_start_str, config.today_str
         )
 
         if not activities:
@@ -1660,12 +1665,12 @@ def get_lactate_threshold_data(api: Garmin) -> None:
         historical = api.get_lactate_threshold(
             latest=False,
             start_date=four_weeks_ago.isoformat(),
-            end_date=config.today.isoformat(),
+            end_date=config.today_str,
             aggregation="daily",
         )
         api_responses.append(
             (
-                f"api.get_lactate_threshold(latest=False, start_date='{four_weeks_ago.isoformat()}', end_date='{config.today.isoformat()}', aggregation='daily')",
+                f"api.get_lactate_threshold(latest=False, start_date='{four_weeks_ago.isoformat()}', end_date='{config.today_str}', aggregation='daily')",
                 historical,
             )
         )
@@ -2267,7 +2272,7 @@ def get_scheduled_workout_by_id_data(api: Garmin) -> None:
 def set_body_composition_data(api: Garmin) -> None:
     """Set body composition data."""
     try:
-        print(f"⚖️ Setting body composition data for {config.today.isoformat()}")
+        print(f"⚖️ Setting body composition data for {config.today_str}")
         print("-" * 50)
 
         # Get weight input from user
@@ -2289,14 +2294,14 @@ def set_body_composition_data(api: Garmin) -> None:
 
         call_and_display(
             api.set_body_composition,
-            timestamp=config.today.isoformat(),
+            timestamp=config.today_str,
             weight=weight,
             percent_fat=15.4,
             percent_hydration=54.8,
             bone_mass=2.9,
             muscle_mass=55.2,
             method_name="set_body_composition",
-            api_call_desc=f"api.set_body_composition({config.today.isoformat()}, weight={weight}, ...)",
+            api_call_desc=f"api.set_body_composition({config.today_str}, weight={weight}, ...)",
         )
         print("✅ Body composition data set successfully!")
     except Exception as e:
@@ -2306,7 +2311,7 @@ def set_body_composition_data(api: Garmin) -> None:
 def add_body_composition_data(api: Garmin) -> None:
     """Add body composition data."""
     try:
-        print(f"⚖️ Adding body composition data for {config.today.isoformat()}")
+        print(f"⚖️ Adding body composition data for {config.today_str}")
         print("-" * 50)
 
         # Get weight input from user
@@ -2328,7 +2333,7 @@ def add_body_composition_data(api: Garmin) -> None:
 
         call_and_display(
             api.add_body_composition,
-            config.today.isoformat(),
+            config.today_str,
             weight=weight,
             percent_fat=15.4,
             percent_hydration=54.8,
@@ -2342,7 +2347,7 @@ def add_body_composition_data(api: Garmin) -> None:
             visceral_fat_rating=None,
             bmi=22.2,
             method_name="add_body_composition",
-            api_call_desc=f"api.add_body_composition({config.today.isoformat()}, weight={weight}, ...)",
+            api_call_desc=f"api.add_body_composition({config.today_str}, weight={weight}, ...)",
         )
         print("✅ Body composition data added successfully!")
     except Exception as e:
@@ -2354,10 +2359,10 @@ def delete_weigh_ins_data(api: Garmin) -> None:
     try:
         call_and_display(
             api.delete_weigh_ins,
-            config.today.isoformat(),
+            config.today_str,
             delete_all=True,
             method_name="delete_weigh_ins",
-            api_call_desc=f"api.delete_weigh_ins({config.today.isoformat()}, delete_all=True)",
+            api_call_desc=f"api.delete_weigh_ins({config.today_str}, delete_all=True)",
         )
         print("✅ Weigh-ins deleted successfully!")
     except Exception as e:
@@ -2370,9 +2375,9 @@ def delete_weigh_in_data(api: Garmin) -> None:
         all_weigh_ins = []
 
         # Find weigh-ins
-        print(f"🔍 Checking daily weigh-ins for today ({config.today.isoformat()})...")
+        print(f"🔍 Checking daily weigh-ins for today ({config.today_str})...")
         try:
-            daily_weigh_ins = api.get_daily_weigh_ins(config.today.isoformat())
+            daily_weigh_ins = api.get_daily_weigh_ins(config.today_str)
 
             if daily_weigh_ins and "dateWeightList" in daily_weigh_ins:
                 weight_list = daily_weigh_ins["dateWeightList"]
@@ -2406,7 +2411,7 @@ def delete_weigh_in_data(api: Garmin) -> None:
                 weight = round(weight, 1)  # Round to 1 decimal place
 
             unit = weigh_in.get("unitKey", "kg")
-            date = weigh_in.get("calendarDate", config.today.isoformat())
+            date = weigh_in.get("calendarDate", config.today_str)
 
             # Try different timestamp fields
             timestamp = (
@@ -2470,7 +2475,7 @@ def delete_weigh_in_data(api: Garmin) -> None:
 
                     unit = selected_weigh_in.get("unitKey", "kg")
                     date = selected_weigh_in.get(
-                        "calendarDate", config.today.isoformat()
+                        "calendarDate", config.today_str
                     )
 
                     # Confirm deletion
@@ -2481,9 +2486,9 @@ def delete_weigh_in_data(api: Garmin) -> None:
                         call_and_display(
                             api.delete_weigh_in,
                             weigh_in_id,
-                            config.today.isoformat(),
+                            config.today_str,
                             method_name="delete_weigh_in",
-                            api_call_desc=f"api.delete_weigh_in({weigh_in_id}, {config.today.isoformat()})",
+                            api_call_desc=f"api.delete_weigh_in({weigh_in_id}, {config.today_str})",
                         )
                         print("✅ Weigh-in deleted successfully!")
                     else:
@@ -2988,7 +2993,7 @@ def delete_blood_pressure_data(api: Garmin) -> None:
     try:
         # Get recent blood pressure entries
         bp_data = api.get_blood_pressure(
-            config.week_start.isoformat(), config.today.isoformat()
+            config.week_start_str, config.today_str
         )
         entry_list = []
 
@@ -3106,8 +3111,8 @@ def query_garmin_graphql_data(api: Garmin) -> None:
         choice = input("\nEnter choice (1-16, c): ").strip()
 
         # Use today's date and date range for queries that need them
-        today = config.today.isoformat()
-        week_start = config.week_start.isoformat()
+        today = config.today_str
+        week_start = config.week_start_str
         start_datetime = f"{today}T00:00:00.00"
         end_datetime = f"{today}T23:59:59.999"
 
@@ -3366,154 +3371,154 @@ def execute_api_call(api: Garmin, key: str) -> None:
             # Daily Health & Activity
             "get_stats": lambda: call_and_display(
                 api.get_stats,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_stats",
-                api_call_desc=f"api.get_stats('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_stats('{config.today_str}')",
             ),
             "get_user_summary": lambda: call_and_display(
                 api.get_user_summary,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_user_summary",
-                api_call_desc=f"api.get_user_summary('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_user_summary('{config.today_str}')",
             ),
             "get_stats_and_body": lambda: call_and_display(
                 api.get_stats_and_body,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_stats_and_body",
-                api_call_desc=f"api.get_stats_and_body('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_stats_and_body('{config.today_str}')",
             ),
             "get_steps_data": lambda: call_and_display(
                 api.get_steps_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_steps_data",
-                api_call_desc=f"api.get_steps_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_steps_data('{config.today_str}')",
             ),
             "get_heart_rates": lambda: call_and_display(
                 api.get_heart_rates,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_heart_rates",
-                api_call_desc=f"api.get_heart_rates('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_heart_rates('{config.today_str}')",
             ),
             "get_resting_heart_rate": lambda: call_and_display(
                 api.get_rhr_day,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_rhr_day",
-                api_call_desc=f"api.get_rhr_day('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_rhr_day('{config.today_str}')",
             ),
             "get_sleep_data": lambda: call_and_display(
                 api.get_sleep_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_sleep_data",
-                api_call_desc=f"api.get_sleep_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_sleep_data('{config.today_str}')",
             ),
             "get_all_day_stress": lambda: call_and_display(
                 api.get_all_day_stress,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_all_day_stress",
-                api_call_desc=f"api.get_all_day_stress('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_all_day_stress('{config.today_str}')",
             ),
             # Advanced Health Metrics
             "get_training_readiness": lambda: call_and_display(
                 api.get_training_readiness,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_training_readiness",
-                api_call_desc=f"api.get_training_readiness('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_training_readiness('{config.today_str}')",
             ),
             "get_training_status": lambda: call_and_display(
                 api.get_training_status,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_training_status",
-                api_call_desc=f"api.get_training_status('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_training_status('{config.today_str}')",
             ),
             "get_respiration_data": lambda: call_and_display(
                 api.get_respiration_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_respiration_data",
-                api_call_desc=f"api.get_respiration_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_respiration_data('{config.today_str}')",
             ),
             "get_spo2_data": lambda: call_and_display(
                 api.get_spo2_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_spo2_data",
-                api_call_desc=f"api.get_spo2_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_spo2_data('{config.today_str}')",
             ),
             "get_max_metrics": lambda: call_and_display(
                 api.get_max_metrics,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_max_metrics",
-                api_call_desc=f"api.get_max_metrics('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_max_metrics('{config.today_str}')",
             ),
             "get_hrv_data": lambda: call_and_display(
                 api.get_hrv_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_hrv_data",
-                api_call_desc=f"api.get_hrv_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_hrv_data('{config.today_str}')",
             ),
             "get_fitnessage_data": lambda: call_and_display(
                 api.get_fitnessage_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_fitnessage_data",
-                api_call_desc=f"api.get_fitnessage_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_fitnessage_data('{config.today_str}')",
             ),
             "get_stress_data": lambda: call_and_display(
                 api.get_stress_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_stress_data",
-                api_call_desc=f"api.get_stress_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_stress_data('{config.today_str}')",
             ),
             "get_lactate_threshold": lambda: get_lactate_threshold_data(api),
             "get_intensity_minutes_data": lambda: call_and_display(
                 api.get_intensity_minutes_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_intensity_minutes_data",
-                api_call_desc=f"api.get_intensity_minutes_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_intensity_minutes_data('{config.today_str}')",
             ),
             "get_lifestyle_logging_data": lambda: call_and_display(
                 api.get_lifestyle_logging_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_lifestyle_logging_data",
-                api_call_desc=f"api.get_lifestyle_logging_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_lifestyle_logging_data('{config.today_str}')",
             ),
             # Historical Data & Trends
             "get_daily_steps": lambda: call_and_display(
                 api.get_daily_steps,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_daily_steps",
-                api_call_desc=f"api.get_daily_steps('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_daily_steps('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_body_battery": lambda: call_and_display(
                 api.get_body_battery,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_body_battery",
-                api_call_desc=f"api.get_body_battery('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_body_battery('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_floors": lambda: call_and_display(
                 api.get_floors,
-                config.week_start.isoformat(),
+                config.week_start_str,
                 method_name="get_floors",
-                api_call_desc=f"api.get_floors('{config.week_start.isoformat()}')",
+                api_call_desc=f"api.get_floors('{config.week_start_str}')",
             ),
             "get_blood_pressure": lambda: call_and_display(
                 api.get_blood_pressure,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_blood_pressure",
-                api_call_desc=f"api.get_blood_pressure('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_blood_pressure('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_progress_summary_between_dates": lambda: call_and_display(
                 api.get_progress_summary_between_dates,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_progress_summary_between_dates",
-                api_call_desc=f"api.get_progress_summary_between_dates('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_progress_summary_between_dates('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_body_battery_events": lambda: call_and_display(
                 api.get_body_battery_events,
-                config.week_start.isoformat(),
+                config.week_start_str,
                 method_name="get_body_battery_events",
-                api_call_desc=f"api.get_body_battery_events('{config.week_start.isoformat()}')",
+                api_call_desc=f"api.get_body_battery_events('{config.week_start_str}')",
             ),
             # Activities & Workouts
             "get_activities": lambda: call_and_display(
@@ -3530,9 +3535,9 @@ def execute_api_call(api: Garmin, key: str) -> None:
             ),
             "get_activities_fordate": lambda: call_and_display(
                 api.get_activities_fordate,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_activities_fordate",
-                api_call_desc=f"api.get_activities_fordate('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_activities_fordate('{config.today_str}')",
             ),
             "get_activity_types": lambda: call_and_display(
                 api.get_activity_types,
@@ -3582,22 +3587,22 @@ def execute_api_call(api: Garmin, key: str) -> None:
             # Body Composition & Weight
             "get_body_composition": lambda: call_and_display(
                 api.get_body_composition,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_body_composition",
-                api_call_desc=f"api.get_body_composition('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_body_composition('{config.today_str}')",
             ),
             "get_weigh_ins": lambda: call_and_display(
                 api.get_weigh_ins,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_weigh_ins",
-                api_call_desc=f"api.get_weigh_ins('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_weigh_ins('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_daily_weigh_ins": lambda: call_and_display(
                 api.get_daily_weigh_ins,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_daily_weigh_ins",
-                api_call_desc=f"api.get_daily_weigh_ins('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_daily_weigh_ins('{config.today_str}')",
             ),
             "add_weigh_in": lambda: add_weigh_in_data(api),
             "set_body_composition": lambda: set_body_composition_data(api),
@@ -3677,17 +3682,17 @@ def execute_api_call(api: Garmin, key: str) -> None:
             ),
             "get_hill_score": lambda: call_and_display(
                 api.get_hill_score,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_hill_score",
-                api_call_desc=f"api.get_hill_score('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_hill_score('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_endurance_score": lambda: call_and_display(
                 api.get_endurance_score,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_endurance_score",
-                api_call_desc=f"api.get_endurance_score('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_endurance_score('{config.week_start_str}', '{config.today_str}')",
             ),
             "get_available_badges": lambda: call_and_display(
                 api.get_available_badges,
@@ -3713,9 +3718,9 @@ def execute_api_call(api: Garmin, key: str) -> None:
             "get_solar_data": lambda: get_solar_data(api),
             "request_reload": lambda: call_and_display(
                 api.request_reload,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="request_reload",
-                api_call_desc=f"api.request_reload('{config.today.isoformat()}')",
+                api_call_desc=f"api.request_reload('{config.today_str}')",
             ),
             "get_device_settings": lambda: get_device_settings_data(api),
             "get_device_last_used": lambda: call_and_display(
@@ -3741,9 +3746,9 @@ def execute_api_call(api: Garmin, key: str) -> None:
             # Hydration & Wellness
             "get_hydration_data": lambda: call_and_display(
                 api.get_hydration_data,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_hydration_data",
-                api_call_desc=f"api.get_hydration_data('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_hydration_data('{config.today_str}')",
             ),
             "get_pregnancy_summary": lambda: call_and_display(
                 api.get_pregnancy_summary,
@@ -3752,24 +3757,24 @@ def execute_api_call(api: Garmin, key: str) -> None:
             ),
             "get_all_day_events": lambda: call_and_display(
                 api.get_all_day_events,
-                config.week_start.isoformat(),
+                config.week_start_str,
                 method_name="get_all_day_events",
-                api_call_desc=f"api.get_all_day_events('{config.week_start.isoformat()}')",
+                api_call_desc=f"api.get_all_day_events('{config.week_start_str}')",
             ),
             "add_hydration_data": lambda: add_hydration_data_entry(api),
             "set_blood_pressure": lambda: set_blood_pressure_data(api),
             "get_menstrual_data_for_date": lambda: call_and_display(
                 api.get_menstrual_data_for_date,
-                config.today.isoformat(),
+                config.today_str,
                 method_name="get_menstrual_data_for_date",
-                api_call_desc=f"api.get_menstrual_data_for_date('{config.today.isoformat()}')",
+                api_call_desc=f"api.get_menstrual_data_for_date('{config.today_str}')",
             ),
             "get_menstrual_calendar_data": lambda: call_and_display(
                 api.get_menstrual_calendar_data,
-                config.week_start.isoformat(),
-                config.today.isoformat(),
+                config.week_start_str,
+                config.today_str,
                 method_name="get_menstrual_calendar_data",
-                api_call_desc=f"api.get_menstrual_calendar_data('{config.week_start.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_menstrual_calendar_data('{config.week_start_str}', '{config.today_str}')",
             ),
             # Blood Pressure Management
             "delete_blood_pressure": lambda: delete_blood_pressure_data(api),
@@ -3780,10 +3785,10 @@ def execute_api_call(api: Garmin, key: str) -> None:
             "delete_activity": lambda: delete_activity_data(api),
             "get_activities_by_date": lambda: call_and_display(
                 api.get_activities_by_date,
-                config.today.isoformat(),
-                config.today.isoformat(),
+                config.today_str,
+                config.today_str,
                 method_name="get_activities_by_date",
-                api_call_desc=f"api.get_activities_by_date('{config.today.isoformat()}', '{config.today.isoformat()}')",
+                api_call_desc=f"api.get_activities_by_date('{config.today_str}', '{config.today_str}')",
             ),
             # System & Export
             "create_health_report": lambda: DataExporter.create_health_report(api),
@@ -4069,11 +4074,11 @@ def main():
             if api_instance:
                 # Add health status in menu prompt
                 try:
-                    summary = api_instance.get_user_summary(config.today.isoformat())
+                    summary = api_instance.get_user_summary(config.today_str)
                     hydration_data = None
                     with suppress(Exception):
                         hydration_data = api_instance.get_hydration_data(
-                            config.today.isoformat()
+                            config.today_str
                         )
 
                     if summary:
@@ -4330,7 +4335,7 @@ def execute_cli_command(api: Garmin, command: str, args: list):
                 sys.exit(1)
         elif command == "get_training_status":
             try:
-                cdate = args[0] if args else config.today.isoformat()
+                cdate = args[0] if args else config.today_str
                 call_and_display(
                     api.get_training_status,
                     cdate,
