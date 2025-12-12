@@ -45,6 +45,14 @@ from garminconnect import (
 # This prevents double error messages for known API issues
 logging.getLogger("garminconnect").setLevel(logging.CRITICAL)
 
+# Set up logger for this script
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(levelname)s: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 api: Garmin | None = None
 
 
@@ -60,13 +68,13 @@ def safe_readkey() -> str:
         str: A single character input from the user
     """
     if not sys.stdin.isatty():
-        print("WARNING: stdin is not a TTY. Falling back to input().")
+        logger.warning("stdin is not a TTY. Falling back to input().")
         user_input = input("Enter a key (then press Enter): ")
         return user_input[0] if user_input else ""
     try:
         return readchar.readkey()
     except Exception as e:
-        print(f"readkey() failed: {e}")
+        logger.error(f"readkey() failed: {e}")
         user_input = input("Enter a key (then press Enter): ")
         return user_input[0] if user_input else ""
 
@@ -581,7 +589,7 @@ class DataExporter:
                         daily_data["date"] = date.isoformat()
                         report_data["weekly_data"].append(daily_data)
                 except Exception as e:
-                    print(
+                    logger.warning(
                         f"Skipping data for {date.isoformat()}: {e}"
                     )  # Skip if data not available
 
@@ -615,12 +623,12 @@ class DataExporter:
                 report_data["device_info"] = []
 
         except Exception as e:
-            print(f"Error creating health report: {e}")
+            logger.error(f"Error creating health report: {e}")
 
         # Create HTML version
         html_filepath = DataExporter.create_readable_health_report(report_data)
 
-        print(f"📊 Report created: {html_filepath}")
+        logger.info(f"📊 Report created: {html_filepath}")
 
         return html_filepath
 
