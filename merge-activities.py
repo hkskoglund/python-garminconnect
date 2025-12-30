@@ -1,4 +1,4 @@
-#!/home/henning/github/python-garminconnect/.venv/bin/python merge-last-activity.py
+#!/home/henning/github/python-garminconnect/.venv/bin/python
 """
 Fetches the last n activities, optionally with their splits, and race predictions using the Garmin API.
 Alternatively, fetches a specific activity by ID.
