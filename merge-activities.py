@@ -59,10 +59,13 @@ def main():
                 "splits": splits
             })
             # Fetch race predictions for the activity date
-            start_time = activity.get("startTimeGMT") or activity.get("startTimeLocal", "")
+            summary = activity.get("summaryDTO", activity)
+            start_time = summary.get("startTimeGMT") or summary.get("startTimeLocal", "")
             if start_time:
-                activity_date = start_time.split(" ")[0]
+                activity_date = start_time.split("T")[0]
                 race_predictions = api.get_race_predictions(startdate=activity_date, enddate=activity_date, _type='daily') or {}
+                if not race_predictions:
+                    print(f"No race predictions available for: {activity_date}", file=sys.stderr)
             else:
                 race_predictions = {}
         else:
